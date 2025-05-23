@@ -1,5 +1,24 @@
 
 // Brilliant Labs Frame BLE communication service
+
+// Define Bluetooth types for better compatibility
+interface BluetoothDevice {
+  id: string;
+  name?: string;
+  gatt?: BluetoothRemoteGATTServer;
+}
+
+interface BluetoothRemoteGATTServer {
+  connected: boolean;
+  connect(): Promise<BluetoothRemoteGATTServer>;
+  disconnect(): void;
+}
+
+interface BluetoothRemoteGATTCharacteristic {
+  writeValue(value: BufferSource): Promise<void>;
+  readValue(): Promise<DataView>;
+}
+
 export interface FrameCommand {
   type: 'CAPTURE' | 'VERDICT_ICON' | 'DETAILS_OVERLAY' | 'LOG_ENTRY';
   payload: any;
@@ -40,7 +59,7 @@ class FrameBLEService {
   async disconnect(): Promise<void> {
     try {
       if (this.device && this.device.gatt?.connected) {
-        await this.device.gatt.disconnect();
+        this.device.gatt.disconnect();
       }
       
       this.device = null;
